@@ -29,9 +29,15 @@ const init = () => {
     control = new OrbitControls(camera, rndr.domElement)
 
     let sun = createSun()
-    sun.position.set(640, 320, 0) 
+    sun.position.set(640, 320, 0)
+    
+    let point = createPointLight()
+    point.position.set(640, 320, 0)
+    point.castShadow = true
 
-    scene.add(sun)
+    let spot = createSpotlight()
+
+    scene.add(sun, point)
 }
 
 const createPointLight = () =>{
