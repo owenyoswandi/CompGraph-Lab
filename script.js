@@ -1,7 +1,7 @@
 import * as THREE from './ThreeJS/build/three.module.js';
 import { OrbitControls } from './ThreeJS/examples/jsm/controls/OrbitControls.js';
 
-let scene, camera, w, h, rndr, control, camera2, selectedcamera
+let scene, camera, w, h, rndr, control, camera2, selectedCamera
 
 const init = () => {
     scene = new THREE.Scene()
@@ -14,9 +14,10 @@ const init = () => {
     camera.lookAt(0, 0, 0)
 
     camera2 = new THREE.PerspectiveCamera(90, w/h, 0.1, 10000)
-    camera.position.set(0, 0, 0)
+    camera2.position.set(0, 0, 0)
+    camera2.lookAt(640, 320, 0)
 
-    selectedcamera = camera
+    selectedCamera = camera
 
     rndr = new THREE.WebGL1Renderer({antialias: true})
     rndr.setSize(w, h)
@@ -87,12 +88,12 @@ window.onload = () => {
 }
 
 window.addEventListener("keydown", (event=>{
-    if(event.key.charAt(0)==32){
-        if(selectedcamera==camera){
-            selectedcamera = camera2
+    if(event.key.charCodeAt(0) == 32){
+        if(selectedCamera == camera){
+            selectedCamera = camera2
             control.enabled = false
-        }else if(selectedcamera == camera2){
-            selectedcamera = camera
+        }else if(selectedCamera == camera2){
+            selectedCamera = camera
             control.enabled = true
         }
     }
