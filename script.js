@@ -11,7 +11,7 @@ const init = () => {
 
     camera = new THREE.PerspectiveCamera(75, w/h, 0.1, 10000)
     camera.position.set(640, 480, 240)
-    camera.lookAt(0, 0, 0)
+    camera.lookAt(640, 320, 0)
 
     camera2 = new THREE.PerspectiveCamera(90, w/h, 0.1, 10000)
     camera2.position.set(0, 0, 0)
@@ -48,7 +48,7 @@ const createSpotlight = () =>{
 }
 
 const createSun = () =>{
-    let geo = new THREE.SphereGeometry(40)
+    let geo = new THREE.SphereGeometry(40, 64, 64)
 
     let textureLoad = new THREE.TextureLoader()
     let texture  = textureLoad.load(
@@ -89,10 +89,13 @@ window.onload = () => {
 
 window.addEventListener("keydown", (event=>{
     if(event.key.charCodeAt(0) == 32){
-        if(selectedCamera == camera){
+        if(selectedCamera == camera)
+        {
             selectedCamera = camera2
             control.enabled = false
-        }else if(selectedCamera == camera2){
+        }
+        else if(selectedCamera == camera2)
+        {
             selectedCamera = camera
             control.enabled = true
         }
