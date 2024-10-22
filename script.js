@@ -47,6 +47,11 @@ let init = () => {
     earth.position.set(100, 320, 0)
     earth.castShadow = true
     earth.receiveShadow = true
+
+    let mars = createMars()
+    mars.position.set(130, 320, 0)
+    mars.castShadow = true
+    mars.receiveShadow = true
     
     let point = createPointLight()
     point.position.set(640, 320, 0)
@@ -54,7 +59,7 @@ let init = () => {
 
     let spot = createSpotlight()
 
-    scene.add(sun, mercury, venus, earth)
+    scene.add(sun, mercury, venus, earth, mars)
     scene.add(point)
 }
 
@@ -151,6 +156,26 @@ let createEarth = () => {
     return new THREE.Mesh(geo, mats)
 }
 
+let createMars = () =>{
+    let geo = new THREE.SphereGeometry(4)
+
+    let textureLoad = new THREE.TextureLoader()
+    let texture  = textureLoad.load(
+        "./assets/textures/mars.jpg"
+    )
+
+    texture.wrapS = THREE.RepeatWrapping
+    texture.wrapT = THREE.RepeatWrapping
+
+    texture.repeat.set(1, 1)
+
+    let mats = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        map: texture
+    })
+    return new THREE.Mesh(geo, mats)
+}
+
 
 let render = () => {
     requestAnimationFrame(render)
@@ -174,13 +199,10 @@ window.onload = () => {
 
 window.addEventListener("keydown", (event=>{
     if(event.key.charCodeAt(0) == 32){
-        if(selectedCamera == camera)
-        {
+        if(selectedCamera == camera){
             selectedCamera = camera2
             control.enabled = false
-        }
-        else if(selectedCamera == camera2)
-        {
+        }else if(selectedCamera == camera2){
             selectedCamera = camera
             control.enabled = true
         }
