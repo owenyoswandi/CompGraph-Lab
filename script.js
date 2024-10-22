@@ -52,6 +52,26 @@ let init = () => {
     mars.position.set(130, 320, 0)
     mars.castShadow = true
     mars.receiveShadow = true
+
+    let jupiter = createJupiter()
+    jupiter.position.set(175, 320, 0)
+    jupiter.castShadow = true
+    jupiter.receiveShadow = true
+
+    let saturn = createSaturn()
+    saturn.position.set(240, 320, 0)
+    saturn.castShadow = true
+    saturn.receiveShadow = true
+
+    let uranus = createUranus()
+    uranus.position.set(280, 320, 0)
+    uranus.castShadow = true
+    uranus.receiveShadow = true
+
+    let neptune = createNeptune()
+    neptune.position.set(320, 320, 0)
+    neptune.castShadow = true
+    neptune.receiveShadow = true
     
     let point = createPointLight()
     point.position.set(640, 320, 0)
@@ -59,7 +79,7 @@ let init = () => {
 
     let spot = createSpotlight()
 
-    scene.add(sun, mercury, venus, earth, mars)
+    scene.add(sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune)
     scene.add(point)
 }
 
@@ -176,6 +196,85 @@ let createMars = () =>{
     return new THREE.Mesh(geo, mats)
 }
 
+let createJupiter = () =>{
+    let geo = new THREE.SphereGeometry(13)
+
+    let textureLoad = new THREE.TextureLoader()
+    let texture  = textureLoad.load(
+        "./assets/textures/jupiter.jpg"
+    )
+
+    texture.wrapS = THREE.RepeatWrapping
+    texture.wrapT = THREE.RepeatWrapping
+
+    texture.repeat.set(1, 1)
+
+    let mats = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        map: texture
+    })
+    return new THREE.Mesh(geo, mats)
+}
+
+let createSaturn = () =>{
+    let geo = new THREE.SphereGeometry(10)
+
+    let textureLoad = new THREE.TextureLoader()
+    let texture  = textureLoad.load(
+        "./assets/textures/saturn.jpg"
+    )
+
+    texture.wrapS = THREE.RepeatWrapping
+    texture.wrapT = THREE.RepeatWrapping
+
+    texture.repeat.set(1, 1)
+
+    let mats = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        map: texture
+    })
+    return new THREE.Mesh(geo, mats)
+}
+
+let createUranus = () =>{
+    let geo = new THREE.SphereGeometry(13)
+
+    let textureLoad = new THREE.TextureLoader()
+    let texture  = textureLoad.load(
+        "./assets/textures/uranus.jpg"
+    )
+
+    texture.wrapS = THREE.RepeatWrapping
+    texture.wrapT = THREE.RepeatWrapping
+
+    texture.repeat.set(1, 1)
+
+    let mats = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        map: texture
+    })
+    return new THREE.Mesh(geo, mats)
+}
+
+let createNeptune = () =>{
+    let geo = new THREE.SphereGeometry(13)
+
+    let textureLoad = new THREE.TextureLoader()
+    let texture  = textureLoad.load(
+        "./assets/textures/neptune.jpg"
+    )
+
+    texture.wrapS = THREE.RepeatWrapping
+    texture.wrapT = THREE.RepeatWrapping
+
+    texture.repeat.set(1, 1)
+
+    let mats = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        map: texture
+    })
+    return new THREE.Mesh(geo, mats)
+}
 
 let render = () => {
     requestAnimationFrame(render)
@@ -187,7 +286,7 @@ window.onresize = () => {
     w = window.innerWidth
     h = window.innerHeight
 
-    camera = w/h
+    camera.aspect = w/h
     rndr.setSize(w, h)
     camera.updateProjectionMatrix()
 }
