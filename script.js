@@ -4,7 +4,7 @@ import { GLTFLoader } from './ThreeJS/examples/jsm/loaders/GLTFLoader.js'
 
 let scene, camera, w, h, rndr, control, camera2, selectedCamera, spot, model
 
-let init = () => {
+function init () {
     scene = new THREE.Scene()
 
     w = window.innerWidth
@@ -92,11 +92,36 @@ let init = () => {
         })
         scene.add( model );
     });
-
-    
+    loadSkyBox()
+}
+function loadSkyBox() {
+    let CubeTexture = new THREE.TextureLoader
+    let geo = new THREE.BoxGeometry(4260, 4260, 4260)
+    let skyBoxMat = [
+        new THREE.MeshBasicMaterial({map: CubeTexture.load("./assets/skybox/right.png"),
+            side: THREE.DoubleSide
+        }),
+        new THREE.MeshBasicMaterial({map: CubeTexture.load("./assets/skybox/left.png"),
+            side: THREE.DoubleSide
+        }),
+        new THREE.MeshBasicMaterial({map: CubeTexture.load("./assets/skybox/top.png"),
+            side: THREE.DoubleSide
+        }),
+        new THREE.MeshBasicMaterial({map: CubeTexture.load("./assets/skybox/bottom.png"),
+            side: THREE.DoubleSide
+        }),
+        new THREE.MeshBasicMaterial({map: CubeTexture.load("./assets/skybox/front.png"),
+            side: THREE.DoubleSide
+        }),
+        new THREE.MeshBasicMaterial({map: CubeTexture.load("./assets/skybox/back.png"),
+            side: THREE.DoubleSide
+        })
+    ]
+    let cube = new THREE.Mesh(geo, skyBoxMat)
+    scene.add(cube)
 }
 
-let createPointLight = () =>{
+function createPointLight (){
     let lampu = new THREE.PointLight(0xffffff, 1, 1280)
     return lampu
 }
@@ -115,7 +140,7 @@ function updateCamera2Position(spaceship) {
     );
     }
 }
-let createSun = () =>{
+function createSun () {
     let geo = new THREE.SphereGeometry(40, 64, 64)
 
     let textureLoad = new THREE.TextureLoader()
@@ -135,7 +160,7 @@ let createSun = () =>{
     return new THREE.Mesh(geo, mats)
 }
 
-let createMercury = () => {
+function createMercury () {
     let geo = new THREE.SphereGeometry(3.2, 64, 64)
 
     let textureLoad = new THREE.TextureLoader()
@@ -155,7 +180,7 @@ let createMercury = () => {
     return new THREE.Mesh(geo, mats)
 }
 
-let createVenus = () => {
+function createVenus () {
     let geo = new THREE.SphereGeometry(4.8, 64, 64)
 
     let textureLoad = new THREE.TextureLoader()
@@ -175,7 +200,7 @@ let createVenus = () => {
     return new THREE.Mesh(geo, mats)
 }
 
-let createEarth = () => {
+function createEarth () {
     let geo = new THREE.SphereGeometry(4.8, 64, 64)
 
     let textureLoad = new THREE.TextureLoader()
@@ -195,7 +220,7 @@ let createEarth = () => {
     return new THREE.Mesh(geo, mats)
 }
 
-let createMars = () =>{
+function createMars (){
     let geo = new THREE.SphereGeometry(4)
 
     let textureLoad = new THREE.TextureLoader()
@@ -215,7 +240,7 @@ let createMars = () =>{
     return new THREE.Mesh(geo, mats)
 }
 
-let createJupiter = () =>{
+function createJupiter (){
     let geo = new THREE.SphereGeometry(13)
 
     let textureLoad = new THREE.TextureLoader()
@@ -235,7 +260,7 @@ let createJupiter = () =>{
     return new THREE.Mesh(geo, mats)
 }
 
-let createSaturn = () =>{
+function createSaturn (){
     let geo = new THREE.SphereGeometry(10)
 
     let textureLoad = new THREE.TextureLoader()
@@ -283,7 +308,7 @@ let createSaturn = () =>{
     return saturnGroup;
 }
 
-let createUranus = () =>{
+function createUranus (){
     let geo = new THREE.SphereGeometry(13)
 
     let textureLoad = new THREE.TextureLoader()
@@ -331,7 +356,7 @@ let createUranus = () =>{
     return uranusGroup;
 }
 
-let createNeptune = () =>{
+function createNeptune (){
     let geo = new THREE.SphereGeometry(13)
 
     let textureLoad = new THREE.TextureLoader()
@@ -351,7 +376,7 @@ let createNeptune = () =>{
     return new THREE.Mesh(geo, mats)
 }
 
-let createSatellite = () => {
+function createSatellite () {
     let geometry = new THREE.CylinderGeometry(1, 0.5, 0.4, 8);
 
     let material = new THREE.MeshStandardMaterial({
@@ -363,7 +388,7 @@ let createSatellite = () => {
     let satellite = new THREE.Mesh(geometry, material);
     return satellite;
 };
-let render = () => {
+function render () {
     requestAnimationFrame(render)
     rndr.render(scene, selectedCamera)
     control.update()
