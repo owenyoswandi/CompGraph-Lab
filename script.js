@@ -2,14 +2,15 @@ import * as THREE from './ThreeJS/build/three.module.js';
 import { OrbitControls } from './ThreeJS/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from './ThreeJS/examples/jsm/loaders/GLTFLoader.js'
 
-let scene, camera, w, h, rndr, control, camera2, selectedCamera, spot, model
+let scene, camera, rndr, control, camera2, selectedCamera, spot, model
 let mercury, venus, earth, mars, jupiter, saturn, uranus, neptune, satellite
+let sun, sunGroup
+
+let w = window.innerWidth, h = window.innerHeight
+
 
 function init () {
     scene = new THREE.Scene()
-
-    w = window.innerWidth
-    h = window.innerHeight
 
     camera = new THREE.PerspectiveCamera(75, w/h, 0.1, 10000)
     camera2 = new THREE.PerspectiveCamera(90, w/h, 0.1, 10000)
@@ -22,26 +23,26 @@ function init () {
 
     rndr.setClearColor(0xffffff)
 
-    rndr.shadowMap.enabled = true 
     rndr.shadowMap.type = THREE.PCFShadowMap
-
+    rndr.shadowMap.enabled = true 
+    
     control = new OrbitControls(camera, rndr.domElement)
 
     updateCameraPosition()
 
-    let sun = createSun()
+    sun = createSun()
     let point = createPointLight()
-    let sunGroup = new THREE.Group()
+    sunGroup = new THREE.Group()
     sunGroup.add(sun, point)
     sunGroup.position.set(640, 320, 0)
 
     satellite = createSatellite()
 
-    createPlanets()
-
     spot = createSpotLight()
 
     scene.add(sunGroup, satellite, spot)
+
+    createPlanets()
     
     let loader = new GLTFLoader()
     loader.load("./assets/model/spaceship/scene.gltf", function ( gltf ) {
@@ -52,7 +53,7 @@ function init () {
             node.castShadow = true
             node.receiveShadow = true
         })
-        scene.add( model );
+        scene.add(model);
     });
 
     loadSkyBox()
@@ -111,42 +112,42 @@ function createPlanets() {
     mercury = createPlanet({
         name: "Mercury",
         size: 3.2,
-        position: [58, 320, 0],
+        position: [sunGroup.position.x+58, 320, 0],
         texturePath: "./assets/textures/mercury.jpg"
     });
 
     venus = createPlanet({
         name: "Venus",
         size: 4.8,
-        position: [80, 320, 0],
+        position: [sunGroup.position.x+80, 320, 0],
         texturePath: "./assets/textures/venus.jpg"
     });
 
     earth = createPlanet({
         name: "Earth",
         size: 4.8,
-        position: [100, 320, 0],
+        position: [sunGroup.position.x+100, 320, 0],
         texturePath: "./assets/textures/earth.jpg"
     });
 
     mars = createPlanet({
         name: "Mars",
         size: 4,
-        position: [130, 320, 0],
+        position: [sunGroup.position.x+130, 320, 0],
         texturePath: "./assets/textures/mars.jpg"
     });
 
     jupiter = createPlanet({
         name: "Jupiter",
         size: 13,
-        position: [175, 320, 0],
+        position: [sunGroup.position.x+175, 320, 0],
         texturePath: "./assets/textures/jupiter.jpg"
     });
 
     saturn = createPlanet({
         name: "Saturn",
         size: 10,
-        position: [240, 320, 0],
+        position: [sunGroup.position.x+240, 320, 0],
         texturePath: "./assets/textures/saturn.jpg",
         ring: {
             innerRadius: 16,
@@ -159,7 +160,7 @@ function createPlanets() {
     uranus = createPlanet({
         name: "Uranus",
         size: 13,
-        position: [280, 320, 0],
+        position: [sunGroup.position.x+280, 320, 0],
         texturePath: "./assets/textures/uranus.jpg",
         ring: {
             innerRadius: 16,
@@ -172,7 +173,7 @@ function createPlanets() {
     neptune = createPlanet({
         name: "Neptune",
         size: 13,
-        position: [320, 320, 0],
+        position: [sunGroup.position.x+320, 320, 0],
         texturePath: "./assets/textures/neptune.jpg"
     });
 
