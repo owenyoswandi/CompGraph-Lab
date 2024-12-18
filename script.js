@@ -421,14 +421,14 @@ function checkHover() {
 
             hoveredObject = parentGroup;
 
-            // Store the original color for all meshes in the group
+            // Store the original color for all meshes in the group and set a random color
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
             hoveredObject.traverse((node) => {
                 if (node.isMesh) {
                     if (!originalColors.has(node)) {
                         originalColors.set(node, node.material.color.clone());
                     }
-                    // Change color randomly
-                    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                    // Apply the same random color to all meshes in the group
                     node.material.color.set(randomColor);
                 }
             });
@@ -445,7 +445,6 @@ function checkHover() {
         }
     }
 }
-
 
 function render () {
     requestAnimationFrame(render)
