@@ -388,38 +388,56 @@ function rotationSolarSystem() {
 function checkHover() {
     raycaster.setFromCamera(mouse, camera);
 
-    // Check intersections with planets and sun
-    const objectsToTest = [sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune];
-    const intersects = raycaster.intersectObjects(objectsToTest);
+    // Check intersections with all groups (sunGroup and planets)
+    const objectsToTest = [sunGroup, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune];
+    const intersects = raycaster.intersectObjects(objectsToTest, true); // Include child objects in the intersection test
 
     if (intersects.length > 0) {
-        const object = intersects[0].object;
+        const intersectedObject = intersects[0].object;
 
-        if (hoveredObject !== object) {
+        // Find the parent group of the intersected object
+        let parentGroup = intersectedObject;
+        while (parentGroup.parent && !objectsToTest.includes(parentGroup)) {
+            parentGroup = parentGroup.parent;
+        }
+
+        if (hoveredObject !== parentGroup) {
             // Restore the color of the previously hovered object
             if (hoveredObject) {
-                hoveredObject.material.color.set(originalColors.get(hoveredObject));
+                hoveredObject.traverse((node) => {
+                    if (node.isMesh && originalColors.has(node)) {
+                        node.material.color.set(originalColors.get(node));
+                    }
+                });
             }
 
-            hoveredObject = object;
+            hoveredObject = parentGroup;
 
-            // Store the original color if not already stored
-            if (!originalColors.has(object)) {
-                originalColors.set(object, object.material.color.clone());
-            }
-
-            // Change color randomly
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            object.material.color.set(randomColor);
+            // Store the original color for all meshes in the group
+            hoveredObject.traverse((node) => {
+                if (node.isMesh) {
+                    if (!originalColors.has(node)) {
+                        originalColors.set(node, node.material.color.clone());
+                    }
+                    // Change color randomly
+                    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                    node.material.color.set(randomColor);
+                }
+            });
         }
     } else {
         // Restore the color of the previously hovered object
         if (hoveredObject) {
-            hoveredObject.material.color.set(originalColors.get(hoveredObject));
+            hoveredObject.traverse((node) => {
+                if (node.isMesh && originalColors.has(node)) {
+                    node.material.color.set(originalColors.get(node));
+                }
+            });
             hoveredObject = null;
         }
     }
 }
+
 
 function render () {
     requestAnimationFrame(render)
