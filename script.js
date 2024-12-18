@@ -35,7 +35,7 @@ function init () {
     sunGroup.add(sun, point)
     sunGroup.position.set(640, 320, 0)
 
-    let satellite = createSatellite()
+    satellite = createSatellite()
 
     createPlanets()
 
@@ -52,6 +52,7 @@ function init () {
         })
         scene.add( model );
     });
+
     loadSkyBox()
 }
 
