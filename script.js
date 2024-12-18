@@ -39,7 +39,9 @@ function init () {
 
     createPlanets()
 
-    scene.add(sunGroup, satellite)
+    spot = createSpotLight()
+
+    scene.add(sunGroup, satellite, spot)
     
     let loader = new GLTFLoader()
     loader.load("./assets/model/spaceship/scene.gltf", function ( gltf ) {
@@ -204,6 +206,12 @@ function loadSkyBox() {
     scene.add(cube)
 }
 
+function createSpotLight (){
+    let SpotLight = new THREE.SpotLight(0xffffff, 8);
+    SpotLight.castShadow = false;
+    return SpotLight
+}
+
 function createPointLight (){
     let lampu = new THREE.PointLight(0xffffff, 1, 1280)
     lampu.castShadow = true
@@ -294,13 +302,14 @@ function updateCameraPosition(){
     control.update();
 }
 
-
 function render () {
     requestAnimationFrame(render)
     rndr.render(scene, selectedCamera)
     control.update()
-    updateSpotlightPosition(model)
-    updateCamera2Position(model)
+    if (model) {
+        updateSpotlightPosition(model)
+        updateCamera2Position(model)
+    }
     updateSatellitePosition()
 }
 
