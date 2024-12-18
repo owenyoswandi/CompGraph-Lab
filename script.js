@@ -2,6 +2,8 @@ import * as THREE from './ThreeJS/build/three.module.js';
 import { OrbitControls } from './ThreeJS/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from './ThreeJS/examples/jsm/loaders/GLTFLoader.js'
 
+let modelInit = false
+
 let scene, camera, rndr, control, camera2, selectedCamera, spot, model
 let mercury, venus, earth, mars, jupiter, saturn, uranus, neptune, satellite
 let sun, sunGroup
@@ -278,16 +280,6 @@ function createSatellite () {
 };
 
 function updateSpotlightPosition(spaceship) {
-    if (spaceship && spaceship.userData.previousPosition) {
-        const { x, y, z } = spaceship.userData.previousPosition;
-        const hasMoved = (
-            x !== spaceship.position.x ||
-            y !== spaceship.position.y ||
-            z !== spaceship.position.z
-        );
-        if (!hasMoved) return;
-    }
-
     spot.position.set(
         spaceship.position.x, 
         spaceship.position.y + 6, 
@@ -299,11 +291,6 @@ function updateSpotlightPosition(spaceship) {
         spaceship.position.z
     );
     spot.target.updateMatrixWorld();
-    spaceship.userData.previousPosition = {
-        x: spaceship.position.x,
-        y: spaceship.position.y,
-        z: spaceship.position.z,
-    };
 }
 
 function updateCamera2Position(spaceship) {
@@ -340,8 +327,29 @@ function updateCameraPosition(){
 
 function updateSpaceship() {
     if (model) {
-        updateSpotlightPosition(model);
-        updateCamera2Position(model);
+        if (modelInit == false){
+            updateSpotlightPosition(model);
+            updateCamera2Position(model);
+            modelInit = true
+        }
+
+        const prevPosition = model.userData.previousPosition || {};
+        const currentPosition = model.position;
+
+        if (
+            prevPosition.x !== currentPosition.x ||
+            prevPosition.y !== currentPosition.y ||
+            prevPosition.z !== currentPosition.z
+        ) {
+            updateSpotlightPosition(model);
+            updateCamera2Position(model);
+
+            model.userData.previousPosition = {
+                x: currentPosition.x,
+                y: currentPosition.y,
+                z: currentPosition.z,
+            };
+        }
     }
 }
 
