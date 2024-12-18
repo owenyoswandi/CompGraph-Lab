@@ -100,7 +100,7 @@ function createPlanet({ name, size, position, texturePath, ring = null }) {
         });
 
         const ringMesh = new THREE.Mesh(ringGeo, ringMats);
-        ringMesh.castShadow = true;
+        ringMesh.castShadow = false;
         ringMesh.receiveShadow = true;
         ringMesh.rotation.x = rotationX;
 
