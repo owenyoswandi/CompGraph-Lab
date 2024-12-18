@@ -5,6 +5,22 @@ import { GLTFLoader } from './ThreeJS/examples/jsm/loaders/GLTFLoader.js'
 let scene, camera, rndr, control, camera2, selectedCamera, spot, model
 let mercury, venus, earth, mars, jupiter, saturn, uranus, neptune, satellite
 let sun, sunGroup
+let raycaster, mouse
+let hoveredObject = null;
+let originalColors = new Map();
+const colors = [
+    "#00FFFF", "#00FF00", "#FFCC00", "#E6E6FA", 
+    "#FF69B4", "#FF8C00", "#FFB6C1", "#00FFFF", 
+    "#87CEEB", "#A8FFB2", "#EE82EE", "#ADD8E6"
+]
+
+window.addEventListener("mousemove", onMouseMove);
+// window.addEventListener("click", onMouseClick);
+
+function onMouseMove(event) {
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+}
 
 let w = window.innerWidth, h = window.innerHeight
 
@@ -28,6 +44,9 @@ function init () {
     control = new OrbitControls(camera, rndr.domElement)
 
     updateCameraPosition()
+
+    raycaster = new THREE.Raycaster()
+    mouse = new THREE.Vector2()
 
     sun = createSun()
     let point = createPointLight()
@@ -221,47 +240,7 @@ function createPointLight (){
     return lampu
 }
 
-function updateSpotlightPosition(spaceship) {
-    if (spaceship && spaceship.userData.previousPosition) {
-        const { x, y, z } = spaceship.userData.previousPosition;
-        const hasMoved = (
-            x !== spaceship.position.x ||
-            y !== spaceship.position.y ||
-            z !== spaceship.position.z
-        );
-        if (!hasMoved) return;
-    }
 
-    spot.position.set(
-        spaceship.position.x, 
-        spaceship.position.y + 6, 
-        spaceship.position.z
-    );
-    spot.target.position.set(
-        spaceship.position.x,
-        spaceship.position.y,
-        spaceship.position.z
-    );
-    spot.target.updateMatrixWorld();
-    spaceship.userData.previousPosition = {
-        x: spaceship.position.x,
-        y: spaceship.position.y,
-        z: spaceship.position.z,
-    };
-}
-function updateCamera2Position(spaceship) {
-    camera2.position.set(
-        spaceship.position.x,
-        spaceship.position.y + 16,
-        spaceship.position.z - 16
-    );
-
-    camera2.lookAt(
-        spaceship.position.x,
-        spaceship.position.y,
-        spaceship.position.z
-    );
-}
 function createSun () {
     let geo = new THREE.SphereGeometry(40, 64, 64)
 
@@ -297,6 +276,49 @@ function createSatellite () {
 
     return satellite_obj;
 };
+
+function updateSpotlightPosition(spaceship) {
+    if (spaceship && spaceship.userData.previousPosition) {
+        const { x, y, z } = spaceship.userData.previousPosition;
+        const hasMoved = (
+            x !== spaceship.position.x ||
+            y !== spaceship.position.y ||
+            z !== spaceship.position.z
+        );
+        if (!hasMoved) return;
+    }
+
+    spot.position.set(
+        spaceship.position.x, 
+        spaceship.position.y + 6, 
+        spaceship.position.z
+    );
+    spot.target.position.set(
+        spaceship.position.x,
+        spaceship.position.y,
+        spaceship.position.z
+    );
+    spot.target.updateMatrixWorld();
+    spaceship.userData.previousPosition = {
+        x: spaceship.position.x,
+        y: spaceship.position.y,
+        z: spaceship.position.z,
+    };
+}
+
+function updateCamera2Position(spaceship) {
+    camera2.position.set(
+        spaceship.position.x,
+        spaceship.position.y + 16,
+        spaceship.position.z - 16
+    );
+
+    camera2.lookAt(
+        spaceship.position.x,
+        spaceship.position.y,
+        spaceship.position.z
+    );
+}
 
 function updateSatellitePosition() {
     if (earth && satellite) {
@@ -363,12 +385,48 @@ function rotationSolarSystem() {
     neptune.rotation.y += speedFactor2 * 0.006;
 }
 
+function checkHover() {
+    raycaster.setFromCamera(mouse, camera);
+
+    // Check intersections with planets and sun
+    const objectsToTest = [sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune];
+    const intersects = raycaster.intersectObjects(objectsToTest);
+
+    if (intersects.length > 0) {
+        const object = intersects[0].object;
+
+        if (hoveredObject !== object) {
+            // Restore the color of the previously hovered object
+            if (hoveredObject) {
+                hoveredObject.material.color.set(originalColors.get(hoveredObject));
+            }
+
+            hoveredObject = object;
+
+            // Store the original color if not already stored
+            if (!originalColors.has(object)) {
+                originalColors.set(object, object.material.color.clone());
+            }
+
+            // Change color randomly
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            object.material.color.set(randomColor);
+        }
+    } else {
+        // Restore the color of the previously hovered object
+        if (hoveredObject) {
+            hoveredObject.material.color.set(originalColors.get(hoveredObject));
+            hoveredObject = null;
+        }
+    }
+}
+
 function render () {
-    
     requestAnimationFrame(render)
     rndr.render(scene, selectedCamera)
     control.update()
 
+    checkHover()
     rotationSolarSystem()
     updateSpaceship()
     updateSatellitePosition()
