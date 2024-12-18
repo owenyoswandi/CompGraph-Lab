@@ -8,7 +8,6 @@ let sun, sunGroup
 
 let w = window.innerWidth, h = window.innerHeight
 
-
 function init () {
     scene = new THREE.Scene()
 
@@ -39,6 +38,9 @@ function init () {
     satellite = createSatellite()
 
     spot = createSpotLight()
+    spot.shadow.mapSize.width = 512;
+    spot.shadow.mapSize.height = 512;
+    spot.distance = 10;
 
     scene.add(sunGroup, satellite, spot)
 
@@ -98,7 +100,7 @@ function createPlanet({ name, size, position, texturePath, ring = null }) {
         });
 
         const ringMesh = new THREE.Mesh(ringGeo, ringMats);
-        ringMesh.castShadow = false;
+        ringMesh.castShadow = true;
         ringMesh.receiveShadow = true;
         ringMesh.rotation.x = rotationX;
 
@@ -220,34 +222,45 @@ function createPointLight (){
 }
 
 function updateSpotlightPosition(spaceship) {
-    if (model) {
-        spot.position.set(
-            spaceship.position.x, 
-            spaceship.position.y + 6, 
-            spaceship.position.z
+    if (spaceship && spaceship.userData.previousPosition) {
+        const { x, y, z } = spaceship.userData.previousPosition;
+        const hasMoved = (
+            x !== spaceship.position.x ||
+            y !== spaceship.position.y ||
+            z !== spaceship.position.z
         );
-        spot.target.position.set(
-            spaceship.position.x,
-            spaceship.position.y,
-            spaceship.position.z
-        );
-        spot.target.updateMatrixWorld();
+        if (!hasMoved) return;
     }
+
+    spot.position.set(
+        spaceship.position.x, 
+        spaceship.position.y + 6, 
+        spaceship.position.z
+    );
+    spot.target.position.set(
+        spaceship.position.x,
+        spaceship.position.y,
+        spaceship.position.z
+    );
+    spot.target.updateMatrixWorld();
+    spaceship.userData.previousPosition = {
+        x: spaceship.position.x,
+        y: spaceship.position.y,
+        z: spaceship.position.z,
+    };
 }
 function updateCamera2Position(spaceship) {
-  if(model){
-        camera2.position.set(
-            spaceship.position.x,
-            spaceship.position.y + 16,
-            spaceship.position.z - 16
-        );
+    camera2.position.set(
+        spaceship.position.x,
+        spaceship.position.y + 16,
+        spaceship.position.z - 16
+    );
 
-        camera2.lookAt(
-            spaceship.position.x,
-            spaceship.position.y,
-            spaceship.position.z
-        );
-    }
+    camera2.lookAt(
+        spaceship.position.x,
+        spaceship.position.y,
+        spaceship.position.z
+    );
 }
 function createSun () {
     let geo = new THREE.SphereGeometry(40, 64, 64)
@@ -303,14 +316,61 @@ function updateCameraPosition(){
     control.update();
 }
 
+function updateSpaceship() {
+    if (model) {
+        updateSpotlightPosition(model);
+        updateCamera2Position(model);
+    }
+}
+
+function rotationSolarSystem() {
+    //Orbital Rotation
+    const speedFactor = -0.0001;
+    mercury.position.x = sunGroup.position.x + 58 * Math.cos(Date.now() * speedFactor * 4.15);
+    mercury.position.z = sunGroup.position.z + 58 * Math.sin(Date.now() * speedFactor * 4.15);
+
+    venus.position.x = sunGroup.position.x + 80 * Math.cos(Date.now() * speedFactor * 1.62);
+    venus.position.z = sunGroup.position.z + 80 * Math.sin(Date.now() * speedFactor * 1.62);
+
+    earth.position.x = sunGroup.position.x + 100 * Math.cos(Date.now() * speedFactor * 1);
+    earth.position.z = sunGroup.position.z + 100 * Math.sin(Date.now() * speedFactor * 1);
+
+    mars.position.x = sunGroup.position.x + 130 * Math.cos(Date.now() * speedFactor * 0.53);
+    mars.position.z = sunGroup.position.z + 130 * Math.sin(Date.now() * speedFactor * 0.53);
+
+    jupiter.position.x = sunGroup.position.x + 175 * Math.cos(Date.now() * speedFactor * 0.08);
+    jupiter.position.z = sunGroup.position.z + 175 * Math.sin(Date.now() * speedFactor * 0.08);
+
+    saturn.position.x = sunGroup.position.x + 240 * Math.cos(Date.now() * speedFactor * 0.03);
+    saturn.position.z = sunGroup.position.z + 240 * Math.sin(Date.now() * speedFactor * 0.03);
+
+    uranus.position.x = sunGroup.position.x + 280 * Math.cos(Date.now() * speedFactor * 0.011);
+    uranus.position.z = sunGroup.position.z + 280 * Math.sin(Date.now() * speedFactor * 0.011);
+
+    neptune.position.x = sunGroup.position.x + 320 * Math.cos(Date.now() * speedFactor * 0.006);
+    neptune.position.z = sunGroup.position.z + 320 * Math.sin(Date.now() * speedFactor * 0.006);
+
+    //Planet Rotation
+    const speedFactor2 = 0.001;
+    sunGroup.rotation.y += speedFactor2 * 1;
+    mercury.rotation.y += speedFactor2 * 4.15;
+    venus.rotation.y += speedFactor2 * -1.62; //clockwise planet rotation
+    earth.rotation.y += speedFactor2 * 1;
+    mars.rotation.y += speedFactor2 * 0.53;
+    jupiter.rotation.y += speedFactor2 * 0.08;
+    saturn.rotation.y += speedFactor2 * 0.03;
+    uranus.rotation.y += speedFactor2 * 0.011;
+    neptune.rotation.y += speedFactor2 * 0.006;
+}
+
 function render () {
+    
     requestAnimationFrame(render)
     rndr.render(scene, selectedCamera)
     control.update()
-    if (model) {
-        updateSpotlightPosition(model)
-        updateCamera2Position(model)
-    }
+
+    rotationSolarSystem()
+    updateSpaceship()
     updateSatellitePosition()
 }
 
