@@ -126,18 +126,29 @@ function createPointLight (){
     return lampu
 }
 
-function updateSpotlightPosition() {
-    if (model) { // Check if model is there
-        spot.position.set(model.position.x, model.position.y + 6, model.position.z);
+function updateSpotlightPosition(spaceship) {
+    if (model) {
+        spot.position.set(
+            spaceship.position.x, 
+            spaceship.position.y + 6, 
+            spaceship.position.z
+        );
+        
     }
 }
 function updateCamera2Position(spaceship) {
   if(model){
-    camera2.position.set(
-        spaceship.position.x,
-        spaceship.position.y + 16,
-        spaceship.position.z + 16 //ini harusnya -16 tp aneh jd gw ganti
-    );
+        camera2.position.set(
+            spaceship.position.x,
+            spaceship.position.y + 16,
+            spaceship.position.z - 16
+        );
+
+        camera2.lookAt(
+            spaceship.position.x,
+            spaceship.position.y,
+            spaceship.position.z
+        );
     }
 }
 function createSun () {
@@ -392,8 +403,8 @@ function render () {
     requestAnimationFrame(render)
     rndr.render(scene, selectedCamera)
     control.update()
-    updateSpotlightPosition()
-    updateCamera2Position(model);
+    updateSpotlightPosition(model)
+    updateCamera2Position(model)
 }
 
 window.onresize = () => {
