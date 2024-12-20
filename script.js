@@ -69,14 +69,16 @@ function init () {
     
     let loader = new GLTFLoader()
     loader.load("./assets/model/spaceship/scene.gltf", function ( gltf ) {
-        model = gltf.scene
-        model.position.set(420, 320, 60)
-        model.traverse(function(node){
-        if(node.isMesh)
-            node.castShadow = true
-            node.receiveShadow = true
-        })
-        scene.add(model);
+        spaceship = gltf.scene
+        spaceship.position.set(420, 320, 60)
+        spaceship.castShadow = true
+        spaceship.receiveShadow = true
+        // model.traverse(function(node){
+        // if(node.isMesh)
+        //     node.castShadow = true
+        //     node.receiveShadow = true
+        // })
+        scene.add(spaceship);
     });
 
     loadSkyBox()
@@ -368,17 +370,17 @@ function rotationSolarSystem() {
     mars.position.x = sunGroup.position.x + 130 * Math.cos(Date.now() * speedFactor * 0.53);
     mars.position.z = sunGroup.position.z + 130 * Math.sin(Date.now() * speedFactor * 0.53);
 
-    jupiter.position.x = sunGroup.position.x + 175 * Math.cos(Date.now() * speedFactor * 0.08);
-    jupiter.position.z = sunGroup.position.z + 175 * Math.sin(Date.now() * speedFactor * 0.08);
+    jupiter.position.x = sunGroup.position.x + 175 * Math.cos(Date.now() * speedFactor * 0.5);
+    jupiter.position.z = sunGroup.position.z + 175 * Math.sin(Date.now() * speedFactor * 0.5);
 
-    saturn.position.x = sunGroup.position.x + 240 * Math.cos(Date.now() * speedFactor * 0.03);
-    saturn.position.z = sunGroup.position.z + 240 * Math.sin(Date.now() * speedFactor * 0.03);
+    saturn.position.x = sunGroup.position.x + 240 * Math.cos(Date.now() * speedFactor * 0.3);
+    saturn.position.z = sunGroup.position.z + 240 * Math.sin(Date.now() * speedFactor * 0.3);
 
-    uranus.position.x = sunGroup.position.x + 280 * Math.cos(Date.now() * speedFactor * 0.011);
-    uranus.position.z = sunGroup.position.z + 280 * Math.sin(Date.now() * speedFactor * 0.011);
+    uranus.position.x = sunGroup.position.x + 280 * Math.cos(Date.now() * speedFactor * 0.11);
+    uranus.position.z = sunGroup.position.z + 280 * Math.sin(Date.now() * speedFactor * 0.11);
 
-    neptune.position.x = sunGroup.position.x + 320 * Math.cos(Date.now() * speedFactor * 0.006);
-    neptune.position.z = sunGroup.position.z + 320 * Math.sin(Date.now() * speedFactor * 0.006);
+    neptune.position.x = sunGroup.position.x + 320 * Math.cos(Date.now() * speedFactor * 0.11);
+    neptune.position.z = sunGroup.position.z + 320 * Math.sin(Date.now() * speedFactor * 0.11);
 
     //Planet Rotation
     const speedFactor2 = 0.001;
@@ -387,10 +389,10 @@ function rotationSolarSystem() {
     venus.rotation.y += speedFactor2 * -1.62; //clockwise planet rotation
     earth.rotation.y += speedFactor2 * 1;
     mars.rotation.y += speedFactor2 * 0.53;
-    jupiter.rotation.y += speedFactor2 * 0.08;
-    saturn.rotation.y += speedFactor2 * 0.03;
-    uranus.rotation.y += speedFactor2 * 0.011;
-    neptune.rotation.y += speedFactor2 * 0.006;
+    jupiter.rotation.y += speedFactor2 * 0.5;
+    saturn.rotation.y += speedFactor2 * 0.8;
+    uranus.rotation.y += speedFactor2 * 0.11;
+    neptune.rotation.y += speedFactor2 * 0.11;
 }
 
 function checkHover() {
