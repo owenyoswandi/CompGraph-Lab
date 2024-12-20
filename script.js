@@ -59,7 +59,7 @@ function init () {
     sunGroup = new THREE.Group()
     sunGroup.add(sun, point)
     sunGroup.position.set(640, 320, 0)
-    sunGroup.userData.id = 'Sun'
+    sunGroup.name = 'Sun'
 
     satellite = createSatellite()
 
@@ -111,7 +111,7 @@ function createPlanet({ name, size, position, texturePath, ring = null }) {
     planetGroup.add(planet);
     planetGroup.position.set(...position);
 
-    planetGroup.userData.id = name;
+    planetGroup.name = name
 
     if (ring) {
         const { innerRadius, outerRadius, ringTexturePath, rotationX } = ring;
@@ -439,152 +439,177 @@ function updateSpaceship() {
     }
 }
 
-function rotationSolarSystem(){
+function rotationSolarSystem() {
+    //Orbital Rotation
     const speedFactor = -0.0001;
-    mercury.position.x = sunGroup.position.x + 58 * Math.cos(Date.now() * speedFactor * 5);
-    mercury.position.z = sunGroup.position.z + 58 * Math.sin(Date.now() * speedFactor * 5);
+    mercury.position.x = sunGroup.position.x + 58 * Math.cos(Date.now() * speedFactor * 4.15);
+    mercury.position.z = sunGroup.position.z + 58 * Math.sin(Date.now() * speedFactor * 4.15);
 
-    venus.position.x = sunGroup.position.x + 80 * Math.cos(Date.now() * speedFactor * 2);
-    venus.position.z = sunGroup.position.z + 80 * Math.sin(Date.now() * speedFactor * 2);
+    venus.position.x = sunGroup.position.x + 80 * Math.cos(Date.now() * speedFactor * 1.62);
+    venus.position.z = sunGroup.position.z + 80 * Math.sin(Date.now() * speedFactor * 1.62);
 
     earth.position.x = sunGroup.position.x + 100 * Math.cos(Date.now() * speedFactor * 1);
     earth.position.z = sunGroup.position.z + 100 * Math.sin(Date.now() * speedFactor * 1);
 
-    mars.position.x = sunGroup.position.x + 130 * Math.cos(Date.now() * speedFactor * 0.8);
-    mars.position.z = sunGroup.position.z + 130 * Math.sin(Date.now() * speedFactor * 0.8);
+    mars.position.x = sunGroup.position.x + 130 * Math.cos(Date.now() * speedFactor * 0.53);
+    mars.position.z = sunGroup.position.z + 130 * Math.sin(Date.now() * speedFactor * 0.53);
 
-    jupiter.position.x = sunGroup.position.x + 175 * Math.cos(Date.now() * speedFactor * 4);
-    jupiter.position.z = sunGroup.position.z + 175 * Math.sin(Date.now() * speedFactor * 4);
+    jupiter.position.x = sunGroup.position.x + 175 * Math.cos(Date.now() * speedFactor * 0.42);
+    jupiter.position.z = sunGroup.position.z + 175 * Math.sin(Date.now() * speedFactor * 0.42);
 
-    saturn.position.x = sunGroup.position.x + 240 * Math.cos(Date.now() * speedFactor * 3.5);
-    saturn.position.z = sunGroup.position.z + 240 * Math.sin(Date.now() * speedFactor * 3.5);
+    saturn.position.x = sunGroup.position.x + 240 * Math.cos(Date.now() * speedFactor * 0.31);
+    saturn.position.z = sunGroup.position.z + 240 * Math.sin(Date.now() * speedFactor * 0.31);
 
-    uranus.position.x = sunGroup.position.x + 280 * Math.cos(Date.now() * speedFactor * 1.5);
-    uranus.position.z = sunGroup.position.z + 280 * Math.sin(Date.now() * speedFactor * 1.5);
+    uranus.position.x = sunGroup.position.x + 280 * Math.cos(Date.now() * speedFactor * 0.20);
+    uranus.position.z = sunGroup.position.z + 280 * Math.sin(Date.now() * speedFactor * 0.20);
 
-    neptune.position.x = sunGroup.position.x + 320 * Math.cos(Date.now() * speedFactor * 1.2);
-    neptune.position.z = sunGroup.position.z + 320 * Math.sin(Date.now() * speedFactor * 1.2);
+    neptune.position.x = sunGroup.position.x + 320 * Math.cos(Date.now() * speedFactor * 0.1);
+    neptune.position.z = sunGroup.position.z + 320 * Math.sin(Date.now() * speedFactor * 0.1);
 
+    //Planet Rotation
     const speedFactor2 = 0.001;
     sunGroup.rotation.y += speedFactor2 * 1;
-    mercury.rotation.y += speedFactor2 * 5;
-    venus.rotation.y += speedFactor2 * -2;
+    mercury.rotation.y += speedFactor2 * 4.15;
+    venus.rotation.y += speedFactor2 * -1.62; //clockwise planet rotation
     earth.rotation.y += speedFactor2 * 1;
-    mars.rotation.y += speedFactor2 * 0.8;
-    jupiter.rotation.y += speedFactor2 * 4;
-    saturn.rotation.y += speedFactor2 * 3.5;
-    uranus.rotation.y += speedFactor2 * 1.5;
-    neptune.rotation.y += speedFactor2 * 1.2;
+    mars.rotation.y += speedFactor2 * 0.53;
+    jupiter.rotation.y += speedFactor2 * 0.08;
+    saturn.rotation.y += speedFactor2 * 0.03;
+    uranus.rotation.y += speedFactor2 * 0.011;
+    neptune.rotation.y += speedFactor2 * 0.006;
 }
 
-function checkHover(){
+function checkHover() {
     raycaster.setFromCamera(mouse, camera);
 
-    const objectsToTest = [sunGroup, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune];
+    // List of objects to test for intersection
+    const objectsToTest = [
+        sunGroup,
+        mercury,
+        venus,
+        earth,
+        mars,
+        jupiter,
+        saturn,
+        uranus,
+        neptune
+    ];
     const intersects = raycaster.intersectObjects(objectsToTest, true);
 
-    if(intersects.length > 0){
+    if (intersects.length > 0) {
         const intersectedObject = intersects[0].object;
 
+        // Get the name of the intersected object or its parent
+        const intersectedName = intersectedObject.name || intersectedObject.parent?.name;
+
+        // Find the parent group of the intersected object
         let parentGroup = intersectedObject;
-        while(parentGroup.parent && !objectsToTest.includes(parentGroup)){
+        while (parentGroup.parent && !objectsToTest.includes(parentGroup)) {
             parentGroup = parentGroup.parent;
         }
 
-        const planetId = intersectedObject.userData.id
-        const planetName = planetId
-
-        if(hoveredObject !== parentGroup){
-            if(hoveredObject){
-                hoveredObject.traverse((node) =>{
-                    if(node.isMesh && originalColors.has(node)){
+        if (hoveredObject !== parentGroup) {
+            // Reset color and remove label for the previous hovered object
+            if (hoveredObject) {
+                hoveredObject.traverse((node) => {
+                    if (node.isMesh && originalColors.has(node)) {
                         node.material.color.set(originalColors.get(node));
                     }
-                })
-                if(label){
+                });
+                if (label) {
                     scene.remove(label);
+                    label = null;
                 }
             }
 
             hoveredObject = parentGroup;
 
+            // Generate a random color and apply it to the parent group
             const randomColor = colors[Math.floor(Math.random() * colors.length)];
             hoveredObject.traverse((node) => {
-                if(node.isMesh){
-                    if(!originalColors.has(node)){
+                if (node.isMesh) {
+                    if (!originalColors.has(node)) {
                         originalColors.set(node, node.material.color.clone());
                     }
                     node.material.color.set(randomColor);
                 }
             });
-
-            const labelColor = colors[Math.floor(Math.random() * colors.length)];
-            label = createTextSprite(planetName, labelColor);
+            label = createTextSprite(intersectedName, randomColor);
             label.position.set(
                 hoveredObject.position.x,
-                hoveredObject.position.y + 45,
+                hoveredObject.position.y + 70,
                 hoveredObject.position.z
             );
             scene.add(label);
         }
-    }else{
-        if(hoveredObject){
-            hoveredObject.traverse((node) =>{
-                if(node.isMesh && originalColors.has(node)){
+    }
+    else 
+    {
+        if (hoveredObject) {
+            hoveredObject.traverse((node) => {
+                if (node.isMesh && originalColors.has(node)) {
                     node.material.color.set(originalColors.get(node));
                 }
             });
-
             if (label) {
                 scene.remove(label);
                 label = null;
             }
-
             hoveredObject = null;
+            }
         }
     }
-}
 
-function createTextSprite(text, color = '#FFFFFF') {
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
+
+    function createTextSprite(text, color = '#FFFFFF') {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
     
-    const fontSize = 2000;
-
-    context.font = `${fontSize}pt Arial`;
-
-    const textWidth = context.measureText(text).width;
-
-    canvas.width = Math.max(textWidth, 1000);
-    canvas.height = fontSize * 2;
-
-    context.font = `${fontSize}pt Arial`;
-    context.fillStyle = color;
-    context.textAlign = 'center';
-    context.textBaseline = 'middle';
-    context.clearRect(0, 0, canvas.width, canvas.height);
-
-    context.fillText(text, canvas.width / 2, canvas.height / 2);
-
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.minFilter = THREE.LinearFilter;
-
-    const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
-    const sprite = new THREE.Sprite(spriteMaterial);
-    sprite.scale.set(10, 5, 1);
-
-    return sprite;
-}
+        // Define font and calculate text dimensions
+        const fontSize = 200; // Adjust as needed for a base size
+        context.font = `${fontSize}px Arial`;
+    
+        const textWidth = context.measureText(text).width;
+        const padding = 20; // Add some padding around the text
+    
+        // Set canvas size based on text dimensions
+        canvas.width = textWidth + padding * 2;
+        canvas.height = fontSize + padding * 2;
+    
+        // Reapply font size for the resized canvas
+        context.font = `${fontSize}px Arial`;
+        context.fillStyle = color;
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.clearRect(0, 0, canvas.width, canvas.height);
+    
+        // Draw text on canvas
+        context.fillText(text, canvas.width / 2, canvas.height / 2);
+    
+        // Create texture and material
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.minFilter = THREE.LinearFilter;
+    
+        const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+        const sprite = new THREE.Sprite(spriteMaterial);
+    
+        // Adjust sprite scale to match text dimensions
+        const scaleFactor = 0.1; // Adjust to control overall size
+        sprite.scale.set(canvas.width * scaleFactor, canvas.height * scaleFactor, 1);
+    
+        return sprite;
+    }
+    
 
 function render () {
     requestAnimationFrame(render)
     rndr.render(scene, selectedCamera)
     control.update()
 
-    checkHover()
     rotationSolarSystem()
     updateSpaceship()
     updateSatellitePosition()
+    checkHover()
 }
 
 window.onresize = () => {
