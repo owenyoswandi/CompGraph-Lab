@@ -440,7 +440,6 @@ function updateSpaceship() {
 }
 
 function rotationSolarSystem() {
-    //Orbital Rotation
     const speedFactor = -0.0001;
     mercury.position.x = sunGroup.position.x + 58 * Math.cos(Date.now() * speedFactor * 4.15);
     mercury.position.z = sunGroup.position.z + 58 * Math.sin(Date.now() * speedFactor * 4.15);
@@ -466,11 +465,10 @@ function rotationSolarSystem() {
     neptune.position.x = sunGroup.position.x + 320 * Math.cos(Date.now() * speedFactor * 0.1);
     neptune.position.z = sunGroup.position.z + 320 * Math.sin(Date.now() * speedFactor * 0.1);
 
-    //Planet Rotation
     const speedFactor2 = 0.001;
     sunGroup.rotation.y += speedFactor2 * 1;
     mercury.rotation.y += speedFactor2 * 4.15;
-    venus.rotation.y += speedFactor2 * -1.62; //clockwise planet rotation
+    venus.rotation.y += speedFactor2 * -1.62;
     earth.rotation.y += speedFactor2 * 1;
     mars.rotation.y += speedFactor2 * 0.53;
     jupiter.rotation.y += speedFactor2 * 0.08;
@@ -482,7 +480,6 @@ function rotationSolarSystem() {
 function checkHover() {
     raycaster.setFromCamera(mouse, camera);
 
-    // List of objects to test for intersection
     const objectsToTest = [
         sunGroup,
         mercury,
@@ -499,17 +496,14 @@ function checkHover() {
     if (intersects.length > 0) {
         const intersectedObject = intersects[0].object;
 
-        // Get the name of the intersected object or its parent
         const intersectedName = intersectedObject.name || intersectedObject.parent?.name;
 
-        // Find the parent group of the intersected object
         let parentGroup = intersectedObject;
         while (parentGroup.parent && !objectsToTest.includes(parentGroup)) {
             parentGroup = parentGroup.parent;
         }
 
         if (hoveredObject !== parentGroup) {
-            // Reset color and remove label for the previous hovered object
             if (hoveredObject) {
                 hoveredObject.traverse((node) => {
                     if (node.isMesh && originalColors.has(node)) {
@@ -524,7 +518,6 @@ function checkHover() {
 
             hoveredObject = parentGroup;
 
-            // Generate a random color and apply it to the parent group
             const randomColor = colors[Math.floor(Math.random() * colors.length)];
             hoveredObject.traverse((node) => {
                 if (node.isMesh) {
@@ -565,36 +558,30 @@ function checkHover() {
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
     
-        // Define font and calculate text dimensions
-        const fontSize = 200; // Adjust as needed for a base size
+        const fontSize = 200;
         context.font = `${fontSize}px Arial`;
     
         const textWidth = context.measureText(text).width;
-        const padding = 20; // Add some padding around the text
+        const padding = 20;
     
-        // Set canvas size based on text dimensions
         canvas.width = textWidth + padding * 2;
         canvas.height = fontSize + padding * 2;
     
-        // Reapply font size for the resized canvas
         context.font = `${fontSize}px Arial`;
         context.fillStyle = color;
         context.textAlign = 'center';
         context.textBaseline = 'middle';
         context.clearRect(0, 0, canvas.width, canvas.height);
     
-        // Draw text on canvas
         context.fillText(text, canvas.width / 2, canvas.height / 2);
     
-        // Create texture and material
         const texture = new THREE.CanvasTexture(canvas);
         texture.minFilter = THREE.LinearFilter;
     
         const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
         const sprite = new THREE.Sprite(spriteMaterial);
-    
-        // Adjust sprite scale to match text dimensions
-        const scaleFactor = 0.1; // Adjust to control overall size
+
+        const scaleFactor = 0.1;
         sprite.scale.set(canvas.width * scaleFactor, canvas.height * scaleFactor, 1);
     
         return sprite;
