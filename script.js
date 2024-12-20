@@ -29,8 +29,7 @@ function onClick(event) {
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
     raycaster.setFromCamera(mouse, camera);
-
-    // List of objects to test for intersection
+    
     const objectsToTest = [
         sunGroup,
         mercury,
@@ -47,22 +46,19 @@ function onClick(event) {
 
     if (intersects.length > 0) {
         const intersectedObject = intersects[0].object;
-        
-        // Increase the rotation speed temporarily
         increaseRotationSpeed(intersectedObject);
     }
 }
 
 function increaseRotationSpeed(object) {
     const originalRotationSpeed = rotationSpeed;
-    const increasedRotationSpeed = rotationSpeed * 5; // Increase by a factor of 5
+    const increasedRotationSpeed = rotationSpeed * 5;
 
     rotationSpeed = increasedRotationSpeed;
 
-    // Return to original speed after a delay (e.g., 2 seconds)
     setTimeout(() => {
         rotationSpeed = originalRotationSpeed;
-    }, 10000); // Adjust the duration as needed
+    }, 10000);
 }
 
 function onMouseMove(event) {
@@ -292,7 +288,6 @@ function createPointLight (){
     return lampu
 }
 
-
 function createSun () {
     let geo = new THREE.SphereGeometry(40, 64, 64)
 
@@ -481,7 +476,6 @@ function updateSpaceship() {
 }
 
 function rotationSolarSystem() {
-    //Orbit Rotation
     const speedFactor = -rotationSpeed/10;
     mercury.position.x = sunGroup.position.x + 58 * Math.cos(Date.now() * speedFactor * 4.15);
     mercury.position.z = sunGroup.position.z + 58 * Math.sin(Date.now() * speedFactor * 4.15);
@@ -507,7 +501,6 @@ function rotationSolarSystem() {
     neptune.position.x = sunGroup.position.x + 320 * Math.cos(Date.now() * speedFactor * 0.1);
     neptune.position.z = sunGroup.position.z + 320 * Math.sin(Date.now() * speedFactor * 0.1);
 
-    //Planet Rotation
     const speedFactor2 = rotationSpeed;
     sunGroup.rotation.y += speedFactor2 * 1;
     mercury.rotation.y += speedFactor2 * 4.15;
