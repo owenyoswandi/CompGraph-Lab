@@ -397,23 +397,44 @@ function updateSpaceship() {
             };
         }
 
-        if (keyIsPressed['KeyW']) {
-            model.position.z -= speed;
-        }
-        if (keyIsPressed['KeyS']) {
-            model.position.z += speed;
-        }
-        if (keyIsPressed['KeyA']) {
-            model.position.x -= speed;
-        }
-        if (keyIsPressed['KeyD']) {
-            model.position.x += speed;
-        }
-        if (keyIsPressed['KeyQ']) {
-            model.position.y += speed;
-        }
-        if (keyIsPressed['KeyE']) {
-            model.position.y -= speed;
+        if(isCam2Active){
+            if (keyIsPressed['KeyW']) {
+                model.position.z += speed;
+            }
+            if (keyIsPressed['KeyS']) {
+                model.position.z -= speed;
+            }
+            if (keyIsPressed['KeyA']) {
+                model.position.x += speed;
+            }
+            if (keyIsPressed['KeyD']) {
+                model.position.x -= speed;
+            }
+            if (keyIsPressed['KeyQ']) {
+                model.position.y += speed;
+            }
+            if (keyIsPressed['KeyE']) {
+                model.position.y -= speed;
+            }
+        }else{
+            if (keyIsPressed['KeyW']) {
+                model.position.z -= speed;
+            }
+            if (keyIsPressed['KeyS']) {
+                model.position.z += speed;
+            }
+            if (keyIsPressed['KeyA']) {
+                model.position.x -= speed;
+            }
+            if (keyIsPressed['KeyD']) {
+                model.position.x += speed;
+            }
+            if (keyIsPressed['KeyQ']) {
+                model.position.y += speed;
+            }
+            if (keyIsPressed['KeyE']) {
+                model.position.y -= speed;
+            }
         }
     }
 }
