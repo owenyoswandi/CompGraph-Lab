@@ -12,8 +12,15 @@ let hoveredObject = null;
 let originalColors = new Map();
 let label = null
 let speed = 0.5
-let rotationSpeed = 0.02
-let direction = new THREE.Vector3();
+
+
+//rotation
+let rotationSpeed = 0.001; // Original rotation speed
+let targetRotationSpeed = rotationSpeed; // Target rotation speed during click
+let speedIncreaseFactor = 10; // Factor to increase the speed
+let isSpeedIncreasing = false; // Flag to check if speed is currently increasing
+let speedChangeDuration = 5000; // Duration to keep increased speed
+let speedChangeStartTime = null; // To track when the speed increase starts
 
 const colors = [
     "#00FFFF", "#00FF00", "#FFCC00", "#E6E6FA", 
@@ -22,6 +29,32 @@ const colors = [
 ]
 
 window.addEventListener("mousemove", onMouseMove);
+window.addEventListener("click", onClick);
+
+function onClick(event) {
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+    
+    const objectsToTest = [
+        sunGroup,
+        mercury,
+        venus,
+        earth,
+        mars,
+        jupiter,
+        saturn,
+        uranus,
+        neptune
+    ];
+
+    const intersects = raycaster.intersectObjects(objectsToTest, true);
+
+    if (intersects.length > 0) {
+        increaseRotationSpeed(); // Increase speed on click
+    }
+}
 
 function onMouseMove(event) {
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -439,9 +472,33 @@ function updateSpaceship() {
     }
 }
 
+function increaseRotationSpeed() {
+    if (!isSpeedIncreasing) {
+        targetRotationSpeed = rotationSpeed * speedIncreaseFactor; // Set target speed
+        speedChangeStartTime = Date.now(); // Start timing the speed change
+        isSpeedIncreasing = true; // Set flag to prevent multiple triggers
+    }
+}
+
+// Function to update the rotation speed smoothly
+function updateRotationSpeed() {
+    const elapsedTime = Date.now() - (speedChangeStartTime || Date.now());
+    
+    // If speed is increasing and duration has not passed
+    if (isSpeedIncreasing && elapsedTime < speedChangeDuration) {
+        rotationSpeed = targetRotationSpeed; // Maintain increased speed
+    } else if (isSpeedIncreasing) {
+        // After duration, reset back to original speed
+        rotationSpeed = 0.001; // Reset to original speed
+        targetRotationSpeed = rotationSpeed; // Reset target speed
+        isSpeedIncreasing = false; // Reset flag
+    }
+}
+
 function rotationSolarSystem() {
-    //Orbital Rotation
-    const speedFactor = -0.0001;
+    updateRotationSpeed();
+    // Orbital Rotation
+    const speedFactor = -rotationSpeed / 10;
     mercury.position.x = sunGroup.position.x + 58 * Math.cos(Date.now() * speedFactor * 4.15);
     mercury.position.z = sunGroup.position.z + 58 * Math.sin(Date.now() * speedFactor * 4.15);
 
@@ -466,11 +523,11 @@ function rotationSolarSystem() {
     neptune.position.x = sunGroup.position.x + 320 * Math.cos(Date.now() * speedFactor * 0.1);
     neptune.position.z = sunGroup.position.z + 320 * Math.sin(Date.now() * speedFactor * 0.1);
 
-    //Planet Rotation
-    const speedFactor2 = 0.001;
+    // Planet Rotation
+    const speedFactor2 = rotationSpeed;
     sunGroup.rotation.y += speedFactor2 * 1;
     mercury.rotation.y += speedFactor2 * 4.15;
-    venus.rotation.y += speedFactor2 * -1.62; //clockwise planet rotation
+    venus.rotation.y += speedFactor2 * -1.62; // clockwise planet rotation
     earth.rotation.y += speedFactor2 * 1;
     mars.rotation.y += speedFactor2 * 0.53;
     jupiter.rotation.y += speedFactor2 * 0.08;
@@ -556,49 +613,48 @@ function checkHover() {
                 label = null;
             }
             hoveredObject = null;
-            }
         }
     }
+}
 
+function createTextSprite(text, color = '#FFFFFF') {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
 
-    function createTextSprite(text, color = '#FFFFFF') {
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-    
-        // Define font and calculate text dimensions
-        const fontSize = 200; // Adjust as needed for a base size
-        context.font = `${fontSize}px Arial`;
-    
-        const textWidth = context.measureText(text).width;
-        const padding = 20; // Add some padding around the text
-    
-        // Set canvas size based on text dimensions
-        canvas.width = textWidth + padding * 2;
-        canvas.height = fontSize + padding * 2;
-    
-        // Reapply font size for the resized canvas
-        context.font = `${fontSize}px Arial`;
-        context.fillStyle = color;
-        context.textAlign = 'center';
-        context.textBaseline = 'middle';
-        context.clearRect(0, 0, canvas.width, canvas.height);
-    
-        // Draw text on canvas
-        context.fillText(text, canvas.width / 2, canvas.height / 2);
-    
-        // Create texture and material
-        const texture = new THREE.CanvasTexture(canvas);
-        texture.minFilter = THREE.LinearFilter;
-    
-        const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
-        const sprite = new THREE.Sprite(spriteMaterial);
-    
-        // Adjust sprite scale to match text dimensions
-        const scaleFactor = 0.1; // Adjust to control overall size
-        sprite.scale.set(canvas.width * scaleFactor, canvas.height * scaleFactor, 1);
-    
-        return sprite;
-    }
+    // Define font and calculate text dimensions
+    const fontSize = 200; // Adjust as needed for a base size
+    context.font = `${fontSize}px Arial`;
+
+    const textWidth = context.measureText(text).width;
+    const padding = 20; // Add some padding around the text
+
+    // Set canvas size based on text dimensions
+    canvas.width = textWidth + padding * 2;
+    canvas.height = fontSize + padding * 2;
+
+    // Reapply font size for the resized canvas
+    context.font = `${fontSize}px Arial`;
+    context.fillStyle = color;
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw text on canvas
+    context.fillText(text, canvas.width / 2, canvas.height / 2);
+
+    // Create texture and material
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.minFilter = THREE.LinearFilter;
+
+    const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+    const sprite = new THREE.Sprite(spriteMaterial);
+
+    // Adjust sprite scale to match text dimensions
+    const scaleFactor = 0.1; // Adjust to control overall size
+    sprite.scale.set(canvas.width * scaleFactor, canvas.height * scaleFactor, 1);
+
+    return sprite;
+}
     
 
 function render () {
