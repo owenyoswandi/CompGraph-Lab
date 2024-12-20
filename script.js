@@ -10,6 +10,8 @@ let sun, sunGroup
 let raycaster, mouse
 let hoveredObject = null;
 let originalColors = new Map();
+let label = null
+
 const colors = [
     "#00FFFF", "#00FF00", "#FFCC00", "#E6E6FA", 
     "#FF69B4", "#FF8C00", "#FFB6C1", "#00FFFF", 
@@ -17,7 +19,6 @@ const colors = [
 ]
 
 window.addEventListener("mousemove", onMouseMove);
-// window.addEventListener("click", onMouseClick);
 
 function onMouseMove(event) {
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -55,6 +56,7 @@ function init () {
     sunGroup = new THREE.Group()
     sunGroup.add(sun, point)
     sunGroup.position.set(640, 320, 0)
+    sunGroup.userData.id = 'Sun'
 
     satellite = createSatellite()
 
@@ -69,16 +71,14 @@ function init () {
     
     let loader = new GLTFLoader()
     loader.load("./assets/model/spaceship/scene.gltf", function ( gltf ) {
-        spaceship = gltf.scene
-        spaceship.position.set(420, 320, 60)
-        spaceship.castShadow = true
-        spaceship.receiveShadow = true
-        // model.traverse(function(node){
-        // if(node.isMesh)
-        //     node.castShadow = true
-        //     node.receiveShadow = true
-        // })
-        scene.add(spaceship);
+        model = gltf.scene
+        model.position.set(420, 320, 60)
+        model.traverse(function(node){
+        if(node.isMesh)
+            node.castShadow = true
+            node.receiveShadow = true
+        })
+        scene.add(model);
     });
 
     loadSkyBox()
@@ -202,6 +202,15 @@ function createPlanets() {
         texturePath: "./assets/textures/neptune.jpg"
     });
 
+    mercury.userData.id = "Mercury"
+    venus.userData.id = "Venus"
+    earth.userData.id = "Earth"
+    mars.userData.id = "Mars"
+    jupiter.userData.id = "Jupiter"
+    saturn.userData.id = "Saturn"
+    uranus.userData.id = "Uranus"
+    neptune.userData.id = "Neptune"
+
     scene.add(mercury, venus, earth, mars, jupiter, saturn, uranus, neptune);
 }
 
@@ -281,31 +290,31 @@ function createSatellite () {
     return satellite_obj;
 };
 
-function updateSpotlightPosition(spaceship) {
+function updateSpotlightPosition(model) {
     spot.position.set(
-        spaceship.position.x, 
-        spaceship.position.y + 6, 
-        spaceship.position.z
+        model.position.x, 
+        model.position.y + 6, 
+        model.position.z
     );
     spot.target.position.set(
-        spaceship.position.x,
-        spaceship.position.y,
-        spaceship.position.z
+        model.position.x,
+        model.position.y,
+        model.position.z
     );
     spot.target.updateMatrixWorld();
 }
 
-function updateCamera2Position(spaceship) {
+function updateCamera2Position(model) {
     camera2.position.set(
-        spaceship.position.x,
-        spaceship.position.y + 16,
-        spaceship.position.z - 16
+        model.position.x,
+        model.position.y + 16,
+        model.position.z - 16
     );
 
     camera2.lookAt(
-        spaceship.position.x,
-        spaceship.position.y,
-        spaceship.position.z
+        model.position.x,
+        model.position.y,
+        model.position.z
     );
 }
 
@@ -355,97 +364,138 @@ function updateSpaceship() {
     }
 }
 
-function rotationSolarSystem() {
-    //Orbital Rotation
+function rotationSolarSystem(){
     const speedFactor = -0.0001;
-    mercury.position.x = sunGroup.position.x + 58 * Math.cos(Date.now() * speedFactor * 4.15);
-    mercury.position.z = sunGroup.position.z + 58 * Math.sin(Date.now() * speedFactor * 4.15);
+    mercury.position.x = sunGroup.position.x + 58 * Math.cos(Date.now() * speedFactor * 5);
+    mercury.position.z = sunGroup.position.z + 58 * Math.sin(Date.now() * speedFactor * 5);
 
-    venus.position.x = sunGroup.position.x + 80 * Math.cos(Date.now() * speedFactor * 1.62);
-    venus.position.z = sunGroup.position.z + 80 * Math.sin(Date.now() * speedFactor * 1.62);
+    venus.position.x = sunGroup.position.x + 80 * Math.cos(Date.now() * speedFactor * 2);
+    venus.position.z = sunGroup.position.z + 80 * Math.sin(Date.now() * speedFactor * 2);
 
     earth.position.x = sunGroup.position.x + 100 * Math.cos(Date.now() * speedFactor * 1);
     earth.position.z = sunGroup.position.z + 100 * Math.sin(Date.now() * speedFactor * 1);
 
-    mars.position.x = sunGroup.position.x + 130 * Math.cos(Date.now() * speedFactor * 0.53);
-    mars.position.z = sunGroup.position.z + 130 * Math.sin(Date.now() * speedFactor * 0.53);
+    mars.position.x = sunGroup.position.x + 130 * Math.cos(Date.now() * speedFactor * 0.8);
+    mars.position.z = sunGroup.position.z + 130 * Math.sin(Date.now() * speedFactor * 0.8);
 
-    jupiter.position.x = sunGroup.position.x + 175 * Math.cos(Date.now() * speedFactor * 0.5);
-    jupiter.position.z = sunGroup.position.z + 175 * Math.sin(Date.now() * speedFactor * 0.5);
+    jupiter.position.x = sunGroup.position.x + 175 * Math.cos(Date.now() * speedFactor * 4);
+    jupiter.position.z = sunGroup.position.z + 175 * Math.sin(Date.now() * speedFactor * 4);
 
-    saturn.position.x = sunGroup.position.x + 240 * Math.cos(Date.now() * speedFactor * 0.3);
-    saturn.position.z = sunGroup.position.z + 240 * Math.sin(Date.now() * speedFactor * 0.3);
+    saturn.position.x = sunGroup.position.x + 240 * Math.cos(Date.now() * speedFactor * 3.5);
+    saturn.position.z = sunGroup.position.z + 240 * Math.sin(Date.now() * speedFactor * 3.5);
 
-    uranus.position.x = sunGroup.position.x + 280 * Math.cos(Date.now() * speedFactor * 0.11);
-    uranus.position.z = sunGroup.position.z + 280 * Math.sin(Date.now() * speedFactor * 0.11);
+    uranus.position.x = sunGroup.position.x + 280 * Math.cos(Date.now() * speedFactor * 1.5);
+    uranus.position.z = sunGroup.position.z + 280 * Math.sin(Date.now() * speedFactor * 1.5);
 
-    neptune.position.x = sunGroup.position.x + 320 * Math.cos(Date.now() * speedFactor * 0.11);
-    neptune.position.z = sunGroup.position.z + 320 * Math.sin(Date.now() * speedFactor * 0.11);
+    neptune.position.x = sunGroup.position.x + 320 * Math.cos(Date.now() * speedFactor * 1.2);
+    neptune.position.z = sunGroup.position.z + 320 * Math.sin(Date.now() * speedFactor * 1.2);
 
-    //Planet Rotation
     const speedFactor2 = 0.001;
     sunGroup.rotation.y += speedFactor2 * 1;
-    mercury.rotation.y += speedFactor2 * 4.15;
-    venus.rotation.y += speedFactor2 * -1.62; //clockwise planet rotation
+    mercury.rotation.y += speedFactor2 * 5;
+    venus.rotation.y += speedFactor2 * -2;
     earth.rotation.y += speedFactor2 * 1;
-    mars.rotation.y += speedFactor2 * 0.53;
-    jupiter.rotation.y += speedFactor2 * 0.5;
-    saturn.rotation.y += speedFactor2 * 0.8;
-    uranus.rotation.y += speedFactor2 * 0.11;
-    neptune.rotation.y += speedFactor2 * 0.11;
+    mars.rotation.y += speedFactor2 * 0.8;
+    jupiter.rotation.y += speedFactor2 * 4;
+    saturn.rotation.y += speedFactor2 * 3.5;
+    uranus.rotation.y += speedFactor2 * 1.5;
+    neptune.rotation.y += speedFactor2 * 1.2;
 }
 
-function checkHover() {
+function checkHover(){
     raycaster.setFromCamera(mouse, camera);
 
-    // Check intersections with all groups (sunGroup and planets)
     const objectsToTest = [sunGroup, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune];
-    const intersects = raycaster.intersectObjects(objectsToTest, true); // Include child objects in the intersection test
+    const intersects = raycaster.intersectObjects(objectsToTest, true);
 
-    if (intersects.length > 0) {
+    if(intersects.length > 0){
         const intersectedObject = intersects[0].object;
 
-        // Find the parent group of the intersected object
         let parentGroup = intersectedObject;
-        while (parentGroup.parent && !objectsToTest.includes(parentGroup)) {
+        while(parentGroup.parent && !objectsToTest.includes(parentGroup)){
             parentGroup = parentGroup.parent;
         }
 
-        if (hoveredObject !== parentGroup) {
-            // Restore the color of the previously hovered object
-            if (hoveredObject) {
-                hoveredObject.traverse((node) => {
-                    if (node.isMesh && originalColors.has(node)) {
+        if(hoveredObject != parentGroup){
+            if(hoveredObject){
+                hoveredObject.traverse((node) =>{
+                    if(node.isMesh && originalColors.has(node)){
                         node.material.color.set(originalColors.get(node));
                     }
-                });
+                })
+                if(label){
+                    scene.remove(label);
+                }
             }
 
             hoveredObject = parentGroup;
 
-            // Store the original color for all meshes in the group and set a random color
             const randomColor = colors[Math.floor(Math.random() * colors.length)];
             hoveredObject.traverse((node) => {
-                if (node.isMesh) {
-                    if (!originalColors.has(node)) {
+                if(node.isMesh){
+                    if(!originalColors.has(node)){
                         originalColors.set(node, node.material.color.clone());
                     }
-                    // Apply the same random color to all meshes in the group
                     node.material.color.set(randomColor);
                 }
             });
+
+            const labelColor = colors[Math.floor(Math.random() * colors.length)];
+            label = createTextSprite(intersectedObject.userData.id, labelColor);
+            label.position.set(
+                hoveredObject.position.x,
+                hoveredObject.position.y + 45,
+                hoveredObject.position.z
+            );
+            scene.add(label);
         }
-    } else {
-        // Restore the color of the previously hovered object
-        if (hoveredObject) {
-            hoveredObject.traverse((node) => {
-                if (node.isMesh && originalColors.has(node)) {
+    }else{
+        if(hoveredObject){
+            hoveredObject.traverse((node) =>{
+                if(node.isMesh && originalColors.has(node)){
                     node.material.color.set(originalColors.get(node));
                 }
             });
+
+            if (label) {
+                scene.remove(label);
+                label = null;
+            }
+
             hoveredObject = null;
         }
     }
+}
+
+function createTextSprite(text, color = '#FFFFFF') {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    
+    const fontSize = 2000;
+
+    context.font = `${fontSize}pt Arial`;
+
+    const textWidth = context.measureText(text).width;
+
+    canvas.width = Math.max(textWidth, 1000);
+    canvas.height = fontSize * 2;
+
+    context.font = `${fontSize}pt Arial`;
+    context.fillStyle = color;
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    context.fillText(text, canvas.width / 2, canvas.height / 2);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.minFilter = THREE.LinearFilter;
+
+    const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+    const sprite = new THREE.Sprite(spriteMaterial);
+    sprite.scale.set(10, 5, 1);
+
+    return sprite;
 }
 
 function render () {
