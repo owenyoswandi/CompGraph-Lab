@@ -11,6 +11,9 @@ let raycaster, mouse
 let hoveredObject = null;
 let originalColors = new Map();
 let label = null
+let speed = 0.5
+let rotationSpeed = 0.02
+let direction = new THREE.Vector3();
 
 const colors = [
     "#00FFFF", "#00FF00", "#FFCC00", "#E6E6FA", 
@@ -72,11 +75,12 @@ function init () {
     let loader = new GLTFLoader()
     loader.load("./assets/model/spaceship/scene.gltf", function ( gltf ) {
         model = gltf.scene
-        model.position.set(420, 320, 60)
+        model.position.set(sunGroup.position.x + 100, 320, 10);
         model.traverse(function(node){
-        if(node.isMesh)
-            node.castShadow = true
-            node.receiveShadow = true
+            if(node.isMesh){
+                node.castShadow = true
+                node.receiveShadow = true   
+            }
         })
         scene.add(model);
     });
@@ -106,6 +110,8 @@ function createPlanet({ name, size, position, texturePath, ring = null }) {
     const planetGroup = new THREE.Group();
     planetGroup.add(planet);
     planetGroup.position.set(...position);
+
+    planetGroup.userData.id = name;
 
     if (ring) {
         const { innerRadius, outerRadius, ringTexturePath, rotationX } = ring;
@@ -202,15 +208,6 @@ function createPlanets() {
         texturePath: "./assets/textures/neptune.jpg"
     });
 
-    mercury.userData.id = "Mercury"
-    venus.userData.id = "Venus"
-    earth.userData.id = "Earth"
-    mars.userData.id = "Mars"
-    jupiter.userData.id = "Jupiter"
-    saturn.userData.id = "Saturn"
-    uranus.userData.id = "Uranus"
-    neptune.userData.id = "Neptune"
-
     scene.add(mercury, venus, earth, mars, jupiter, saturn, uranus, neptune);
 }
 
@@ -305,17 +302,15 @@ function updateSpotlightPosition(model) {
 }
 
 function updateCamera2Position(model) {
-    camera2.position.set(
-        model.position.x,
-        model.position.y + 16,
-        model.position.z - 16
-    );
-
-    camera2.lookAt(
-        model.position.x,
-        model.position.y,
-        model.position.z
-    );
+    if(camera2){
+        camera2.position.set(
+            model.position.x,
+            model.position.y + 16,
+            model.position.z - 16
+        );
+    
+        camera2.lookAt(model.position)
+    }
 }
 
 function updateSatellitePosition() {
@@ -336,6 +331,46 @@ function updateCameraPosition(){
     control.update();
 }
 
+
+let keyIsPressed = {
+    'KeyW': false,
+    'KeyS': false,
+    'KeyA': false,
+    'KeyD': false,
+    'KeyQ': false,
+    'KeyE': false,
+};
+
+let isCam2Active = false;
+
+function onKeyDown(event) {
+    const key = event.code;
+    
+    if (keyIsPressed.hasOwnProperty(key)) {
+        keyIsPressed[key] = true;
+    }
+
+    if (key === 'Space') {
+        isCam2Active = !isCam2Active;
+        if (isCam2Active) {
+            scene.camera = cam2;
+        } else {
+            scene.camera = cam1;
+        }
+    }
+}
+
+function onKeyUp(event) {
+    const key = event.code;
+
+    if (keyIsPressed.hasOwnProperty(key)) {
+        keyIsPressed[key] = false;
+    }
+}
+
+document.addEventListener('keydown', onKeyDown);
+document.addEventListener('keyup', onKeyUp);
+
 function updateSpaceship() {
     if (model) {
         if (modelInit == false){
@@ -347,11 +382,11 @@ function updateSpaceship() {
         const prevPosition = model.userData.previousPosition || {};
         const currentPosition = model.position;
 
-        if (
+        if(
             prevPosition.x !== currentPosition.x ||
             prevPosition.y !== currentPosition.y ||
             prevPosition.z !== currentPosition.z
-        ) {
+        ){
             updateSpotlightPosition(model);
             updateCamera2Position(model);
 
@@ -360,6 +395,25 @@ function updateSpaceship() {
                 y: currentPosition.y,
                 z: currentPosition.z,
             };
+        }
+
+        if (keyIsPressed['KeyW']) {
+            model.position.z -= speed;
+        }
+        if (keyIsPressed['KeyS']) {
+            model.position.z += speed;
+        }
+        if (keyIsPressed['KeyA']) {
+            model.position.x -= speed;
+        }
+        if (keyIsPressed['KeyD']) {
+            model.position.x += speed;
+        }
+        if (keyIsPressed['KeyQ']) {
+            model.position.y += speed;
+        }
+        if (keyIsPressed['KeyE']) {
+            model.position.y -= speed;
         }
     }
 }
@@ -416,7 +470,10 @@ function checkHover(){
             parentGroup = parentGroup.parent;
         }
 
-        if(hoveredObject != parentGroup){
+        const planetId = intersectedObject.userData.id
+        const planetName = planetId
+
+        if(hoveredObject !== parentGroup){
             if(hoveredObject){
                 hoveredObject.traverse((node) =>{
                     if(node.isMesh && originalColors.has(node)){
@@ -441,7 +498,7 @@ function checkHover(){
             });
 
             const labelColor = colors[Math.floor(Math.random() * colors.length)];
-            label = createTextSprite(intersectedObject.userData.id, labelColor);
+            label = createTextSprite(planetName, labelColor);
             label.position.set(
                 hoveredObject.position.x,
                 hoveredObject.position.y + 45,
