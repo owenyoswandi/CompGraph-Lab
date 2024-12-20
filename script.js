@@ -13,12 +13,7 @@ let originalColors = new Map();
 let label = null
 let speed = 0.5
 
-let rotationSpeed = 0.001;
-let targetRotationSpeed = rotationSpeed; 
-let speedIncreaseFactor = 10;
-let isSpeedIncreasing = false;
-let speedChangeDuration = 5000;
-let speedChangeStartTime = null;
+let rotationSpeed = 0.001
 
 const colors = [
     "#00FFFF", "#00FF00", "#FFCC00", "#E6E6FA", 
@@ -34,7 +29,8 @@ function onClick(event) {
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
     raycaster.setFromCamera(mouse, camera);
-    
+
+    // List of objects to test for intersection
     const objectsToTest = [
         sunGroup,
         mercury,
@@ -50,8 +46,23 @@ function onClick(event) {
     const intersects = raycaster.intersectObjects(objectsToTest, true);
 
     if (intersects.length > 0) {
-        increaseRotationSpeed();
+        const intersectedObject = intersects[0].object;
+        
+        // Increase the rotation speed temporarily
+        increaseRotationSpeed(intersectedObject);
     }
+}
+
+function increaseRotationSpeed(object) {
+    const originalRotationSpeed = rotationSpeed;
+    const increasedRotationSpeed = rotationSpeed * 5; // Increase by a factor of 5
+
+    rotationSpeed = increasedRotationSpeed;
+
+    // Return to original speed after a delay (e.g., 2 seconds)
+    setTimeout(() => {
+        rotationSpeed = originalRotationSpeed;
+    }, 10000); // Adjust the duration as needed
 }
 
 function onMouseMove(event) {
@@ -469,30 +480,9 @@ function updateSpaceship() {
     }
 }
 
-function increaseRotationSpeed() {
-    if (!isSpeedIncreasing) {
-        targetRotationSpeed = rotationSpeed * speedIncreaseFactor;
-        speedChangeStartTime = Date.now();
-        isSpeedIncreasing = true;
-    }
-}
-
-function updateRotationSpeed() {
-    const elapsedTime = Date.now() - (speedChangeStartTime || Date.now());
-    
-    if (isSpeedIncreasing && elapsedTime < speedChangeDuration) {
-        rotationSpeed = targetRotationSpeed;
-    } else if (isSpeedIncreasing) {
-        rotationSpeed = 0.001;
-        targetRotationSpeed = rotationSpeed;
-        isSpeedIncreasing = false;
-    }
-}
-
 function rotationSolarSystem() {
-    updateRotationSpeed()
     //Orbit Rotation
-    const speedFactor = -0.0001;
+    const speedFactor = -rotationSpeed/10;
     mercury.position.x = sunGroup.position.x + 58 * Math.cos(Date.now() * speedFactor * 4.15);
     mercury.position.z = sunGroup.position.z + 58 * Math.sin(Date.now() * speedFactor * 4.15);
 
@@ -518,7 +508,7 @@ function rotationSolarSystem() {
     neptune.position.z = sunGroup.position.z + 320 * Math.sin(Date.now() * speedFactor * 0.1);
 
     //Planet Rotation
-    const speedFactor2 = 0.001;
+    const speedFactor2 = rotationSpeed;
     sunGroup.rotation.y += speedFactor2 * 1;
     mercury.rotation.y += speedFactor2 * 4.15;
     venus.rotation.y += speedFactor2 * -1.62;
