@@ -13,14 +13,12 @@ let originalColors = new Map();
 let label = null
 let speed = 0.5
 
-
-//rotation
-let rotationSpeed = 0.001; // Original rotation speed
-let targetRotationSpeed = rotationSpeed; // Target rotation speed during click
-let speedIncreaseFactor = 10; // Factor to increase the speed
-let isSpeedIncreasing = false; // Flag to check if speed is currently increasing
-let speedChangeDuration = 5000; // Duration to keep increased speed
-let speedChangeStartTime = null; // To track when the speed increase starts
+let rotationSpeed = 0.001;
+let targetRotationSpeed = rotationSpeed; 
+let speedIncreaseFactor = 10;
+let isSpeedIncreasing = false;
+let speedChangeDuration = 5000;
+let speedChangeStartTime = null;
 
 const colors = [
     "#00FFFF", "#00FF00", "#FFCC00", "#E6E6FA", 
@@ -52,7 +50,7 @@ function onClick(event) {
     const intersects = raycaster.intersectObjects(objectsToTest, true);
 
     if (intersects.length > 0) {
-        increaseRotationSpeed(); // Increase speed on click
+        increaseRotationSpeed();
     }
 }
 
@@ -364,7 +362,6 @@ function updateCameraPosition(){
     control.update();
 }
 
-
 let keyIsPressed = {
     'KeyW': false,
     'KeyS': false,
@@ -474,31 +471,28 @@ function updateSpaceship() {
 
 function increaseRotationSpeed() {
     if (!isSpeedIncreasing) {
-        targetRotationSpeed = rotationSpeed * speedIncreaseFactor; // Set target speed
-        speedChangeStartTime = Date.now(); // Start timing the speed change
-        isSpeedIncreasing = true; // Set flag to prevent multiple triggers
+        targetRotationSpeed = rotationSpeed * speedIncreaseFactor;
+        speedChangeStartTime = Date.now();
+        isSpeedIncreasing = true;
     }
 }
 
-// Function to update the rotation speed smoothly
 function updateRotationSpeed() {
     const elapsedTime = Date.now() - (speedChangeStartTime || Date.now());
     
-    // If speed is increasing and duration has not passed
     if (isSpeedIncreasing && elapsedTime < speedChangeDuration) {
-        rotationSpeed = targetRotationSpeed; // Maintain increased speed
+        rotationSpeed = targetRotationSpeed;
     } else if (isSpeedIncreasing) {
-        // After duration, reset back to original speed
-        rotationSpeed = 0.001; // Reset to original speed
-        targetRotationSpeed = rotationSpeed; // Reset target speed
-        isSpeedIncreasing = false; // Reset flag
+        rotationSpeed = 0.001;
+        targetRotationSpeed = rotationSpeed;
+        isSpeedIncreasing = false;
     }
 }
 
 function rotationSolarSystem() {
-    updateRotationSpeed();
-    // Orbital Rotation
-    const speedFactor = -rotationSpeed / 10;
+    updateRotationSpeed()
+    //Orbit Rotation
+    const speedFactor = -0.0001;
     mercury.position.x = sunGroup.position.x + 58 * Math.cos(Date.now() * speedFactor * 4.15);
     mercury.position.z = sunGroup.position.z + 58 * Math.sin(Date.now() * speedFactor * 4.15);
 
@@ -523,11 +517,11 @@ function rotationSolarSystem() {
     neptune.position.x = sunGroup.position.x + 320 * Math.cos(Date.now() * speedFactor * 0.1);
     neptune.position.z = sunGroup.position.z + 320 * Math.sin(Date.now() * speedFactor * 0.1);
 
-    // Planet Rotation
-    const speedFactor2 = rotationSpeed;
+    //Planet Rotation
+    const speedFactor2 = 0.001;
     sunGroup.rotation.y += speedFactor2 * 1;
     mercury.rotation.y += speedFactor2 * 4.15;
-    venus.rotation.y += speedFactor2 * -1.62; // clockwise planet rotation
+    venus.rotation.y += speedFactor2 * -1.62;
     earth.rotation.y += speedFactor2 * 1;
     mars.rotation.y += speedFactor2 * 0.53;
     jupiter.rotation.y += speedFactor2 * 0.08;
@@ -539,7 +533,6 @@ function rotationSolarSystem() {
 function checkHover() {
     raycaster.setFromCamera(mouse, camera);
 
-    // List of objects to test for intersection
     const objectsToTest = [
         sunGroup,
         mercury,
@@ -556,17 +549,14 @@ function checkHover() {
     if (intersects.length > 0) {
         const intersectedObject = intersects[0].object;
 
-        // Get the name of the intersected object or its parent
         const intersectedName = intersectedObject.name || intersectedObject.parent?.name;
 
-        // Find the parent group of the intersected object
         let parentGroup = intersectedObject;
         while (parentGroup.parent && !objectsToTest.includes(parentGroup)) {
             parentGroup = parentGroup.parent;
         }
 
         if (hoveredObject !== parentGroup) {
-            // Reset color and remove label for the previous hovered object
             if (hoveredObject) {
                 hoveredObject.traverse((node) => {
                     if (node.isMesh && originalColors.has(node)) {
@@ -581,7 +571,6 @@ function checkHover() {
 
             hoveredObject = parentGroup;
 
-            // Generate a random color and apply it to the parent group
             const randomColor = colors[Math.floor(Math.random() * colors.length)];
             hoveredObject.traverse((node) => {
                 if (node.isMesh) {
@@ -617,44 +606,38 @@ function checkHover() {
     }
 }
 
-function createTextSprite(text, color = '#FFFFFF') {
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-
-    // Define font and calculate text dimensions
-    const fontSize = 200; // Adjust as needed for a base size
-    context.font = `${fontSize}px Arial`;
-
-    const textWidth = context.measureText(text).width;
-    const padding = 20; // Add some padding around the text
-
-    // Set canvas size based on text dimensions
-    canvas.width = textWidth + padding * 2;
-    canvas.height = fontSize + padding * 2;
-
-    // Reapply font size for the resized canvas
-    context.font = `${fontSize}px Arial`;
-    context.fillStyle = color;
-    context.textAlign = 'center';
-    context.textBaseline = 'middle';
-    context.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Draw text on canvas
-    context.fillText(text, canvas.width / 2, canvas.height / 2);
-
-    // Create texture and material
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.minFilter = THREE.LinearFilter;
-
-    const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
-    const sprite = new THREE.Sprite(spriteMaterial);
-
-    // Adjust sprite scale to match text dimensions
-    const scaleFactor = 0.1; // Adjust to control overall size
-    sprite.scale.set(canvas.width * scaleFactor, canvas.height * scaleFactor, 1);
-
-    return sprite;
-}
+    function createTextSprite(text, color = '#FFFFFF') {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+    
+        const fontSize = 200;
+        context.font = `${fontSize}px Arial`;
+    
+        const textWidth = context.measureText(text).width;
+        const padding = 20;
+    
+        canvas.width = textWidth + padding * 2;
+        canvas.height = fontSize + padding * 2;
+    
+        context.font = `${fontSize}px Arial`;
+        context.fillStyle = color;
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.clearRect(0, 0, canvas.width, canvas.height);
+    
+        context.fillText(text, canvas.width / 2, canvas.height / 2);
+    
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.minFilter = THREE.LinearFilter;
+    
+        const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+        const sprite = new THREE.Sprite(spriteMaterial);
+    
+        const scaleFactor = 0.1;
+        sprite.scale.set(canvas.width * scaleFactor, canvas.height * scaleFactor, 1);
+    
+        return sprite;
+    }
     
 
 function render () {
