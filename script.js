@@ -29,7 +29,7 @@ function onClick(event) {
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
     raycaster.setFromCamera(mouse, camera);
-    
+
     const objectsToTest = [
         sunGroup,
         mercury,
@@ -282,11 +282,11 @@ function createSpotLight (){
     return SpotLight
 }
 
-function createPointLight (){
-    let lampu = new THREE.PointLight(0xffffff, 1, 1280)
-    lampu.castShadow = true
-    return lampu
-}
+    function createPointLight (){
+        let lampu = new THREE.PointLight(0xffffff, 1, 1280)
+        lampu.castShadow = true
+        return lampu
+    }
 
 function createSun () {
     let geo = new THREE.SphereGeometry(40, 64, 64)
@@ -589,39 +589,38 @@ function checkHover() {
     }
 }
 
-    function createTextSprite(text, color = '#FFFFFF') {
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-    
-        const fontSize = 200;
-        context.font = `${fontSize}px Arial`;
-    
-        const textWidth = context.measureText(text).width;
-        const padding = 20;
-    
-        canvas.width = textWidth + padding * 2;
-        canvas.height = fontSize + padding * 2;
-    
-        context.font = `${fontSize}px Arial`;
-        context.fillStyle = color;
-        context.textAlign = 'center';
-        context.textBaseline = 'middle';
-        context.clearRect(0, 0, canvas.width, canvas.height);
-    
-        context.fillText(text, canvas.width / 2, canvas.height / 2);
-    
-        const texture = new THREE.CanvasTexture(canvas);
-        texture.minFilter = THREE.LinearFilter;
-    
-        const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
-        const sprite = new THREE.Sprite(spriteMaterial);
-    
-        const scaleFactor = 0.1;
-        sprite.scale.set(canvas.width * scaleFactor, canvas.height * scaleFactor, 1);
-    
-        return sprite;
-    }
-    
+function createTextSprite(text, color = '#FFFFFF') {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+
+    const fontSize = 200;
+    context.font = `${fontSize}px Arial`;
+
+    const textWidth = context.measureText(text).width;
+    const padding = 20;
+
+    canvas.width = textWidth + padding * 2;
+    canvas.height = fontSize + padding * 2;
+
+    context.font = `${fontSize}px Arial`;
+    context.fillStyle = color;
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    context.fillText(text, canvas.width / 2, canvas.height / 2);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.minFilter = THREE.LinearFilter;
+
+    const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+    const sprite = new THREE.Sprite(spriteMaterial);
+
+    const scaleFactor = 0.1;
+    sprite.scale.set(canvas.width * scaleFactor, canvas.height * scaleFactor, 1);
+
+    return sprite;
+}
 
 function render () {
     requestAnimationFrame(render)
